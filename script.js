@@ -89,7 +89,7 @@ function handleWalletAction() {
 
 async function buyBox() {
     const buyBtn = document.getElementById("buyBtn");
-    if (!buyBtn) return; // Sortir si pas sur index.html
+    if (!buyBtn) return;
     buyBtn.disabled = true;
 
     const contract = await initWeb3();
@@ -155,15 +155,15 @@ async function buyBox() {
 // Fonction pour account.html
 async function loadPurchases() {
     const mascotGrid = document.getElementById("mascot-grid");
-    if (!mascotGrid) return; // Sortir si pas sur account.html
+    if (!mascotGrid) return;
 
-    const web3 = await initWeb3();
-    if (!web3) return;
+    const contract = await initWeb3(); // Attendre que initWeb3 soit terminé
+    if (!contract) return;
 
-    const contract = new web3.eth.Contract(contractABI, contractAddress);
+    const web3Instance = web3; // Utiliser l’instance déjà initialisée
     try {
-        const accounts = await web3.eth.getAccounts();
-        const latestBlock = Number(await web3.eth.getBlockNumber());
+        const accounts = await web3Instance.eth.getAccounts();
+        const latestBlock = Number(await web3Instance.eth.getBlockNumber());
         const fromBlock = latestBlock - 5000;
         console.log("Latest block:", latestBlock);
         console.log("Searching from block:", fromBlock);
@@ -209,6 +209,8 @@ if (document.getElementById("buyBtn")) {
     document.getElementById("buyBtn").addEventListener("click", buyBox);
 }
 if (document.getElementById("mascot-grid")) {
-    initWeb3().then(() => console.log("Wallet initialized"));
-    window.onload = loadPurchases;
+    window.onload = async () => {
+        await initWeb3(); // Attendre l’initialisation
+        loadPurchases(); // Puis charger les mascottes
+    };
 }
