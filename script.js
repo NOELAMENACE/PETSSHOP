@@ -3,7 +3,7 @@ let connectedAccount = null;
 const charactersImg = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.png`);
 const charactersVid = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.webm`);
 const downloadLink = "https://drive.google.com/uc?export=download&id=1CGB5Hw5aCVdDit-We_Al4aT-3s4dk_RX";
-const contractAddress = "0x6e7BB75a1B98362dD98DBBEdF294D3F2D56D1658";
+const contractAddress = "0x6e7BB75a1B98362dD98DBBEdF294D3F2D56D1658"; // Remplace par la nouvelle adresse si déployé
 const contractABI = [
     {"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
     {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"BoxPurchased","type":"event"},
@@ -53,7 +53,6 @@ async function initWeb3() {
     }
 }
 
-// Fonctions pour index.html
 const tickerItems = document.getElementById("tickerItems");
 if (tickerItems) {
     const tickerContent = [];
@@ -87,6 +86,29 @@ function handleWalletAction() {
     }
 }
 
+async function getOwnedMascots() {
+    const contract = await initWeb3();
+    if (!contract || !connectedAccount) return [];
+
+    try {
+        const latestBlock = Number(await web3.eth.getBlockNumber());
+        const fromBlock = latestBlock - 5000;
+        const events = await contract.getPastEvents("BoxPurchased", {
+            filter: { buyer: connectedAccount },
+            fromBlock: fromBlock > 0 ? fromBlock : 0,
+            toBlock: "latest"
+        });
+        const owned = new Set();
+        events.forEach(event => {
+            owned.add(Number(event.returnValues.characterId));
+        });
+        return Array.from(owned);
+    } catch (error) {
+        console.error("Error fetching owned mascots:", error);
+        return [];
+    }
+}
+
 async function buyBox() {
     const buyBtn = document.getElementById("buyBtn");
     if (!buyBtn) return;
@@ -99,6 +121,13 @@ async function buyBox() {
     }
 
     const accounts = await web3.eth.getAccounts();
+    const ownedMascots = await getOwnedMascots();
+
+    if (ownedMascots.length >= 7) {
+        showPopup("You already own all mascots!");
+        buyBtn.disabled = false;
+        return;
+    }
 
     try {
         console.log("Sending transaction...");
@@ -107,6 +136,13 @@ async function buyBox() {
             value: web3.utils.toWei("0.001", "ether")
         });
         const characterId = Number(tx.events.BoxPurchased.returnValues.characterId);
+
+        if (ownedMascots.includes(characterId)) {
+            showPopup("You already own this mascot! Try again.");
+            buyBtn.disabled = false;
+            return; // Ne devrait pas arriver avec un nouveau contrat, mais simulation ici
+        }
+
         console.log("Transaction succeeded. Character ID:", characterId);
 
         const tickerItems = document.getElementById("tickerItems");
@@ -152,15 +188,14 @@ async function buyBox() {
     }
 }
 
-// Fonction pour account.html
 async function loadPurchases() {
     const mascotGrid = document.getElementById("mascot-grid");
     if (!mascotGrid) return;
 
-    const contract = await initWeb3(); // Attendre que initWeb3 soit terminé
+    const contract = await initWeb3();
     if (!contract) return;
 
-    const web3Instance = web3; // Utiliser l’instance déjà initialisée
+    const web3Instance = web3;
     try {
         const accounts = await web3Instance.eth.getAccounts();
         const latestBlock = Number(await web3Instance.eth.getBlockNumber());
@@ -204,13 +239,12 @@ async function loadPurchases() {
     }
 }
 
-// Initialisation selon la page
 if (document.getElementById("buyBtn")) {
     document.getElementById("buyBtn").addEventListener("click", buyBox);
 }
 if (document.getElementById("mascot-grid")) {
     window.onload = async () => {
-        await initWeb3(); // Attendre l’initialisation
-        loadPurchases(); // Puis charger les mascottes
+        await initWeb3();
+        loadPurchases();
     };
 }
