@@ -3,15 +3,18 @@ let connectedAccount = null;
 const charactersImg = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.png`);
 const charactersVid = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.webm`);
 const downloadLink = "https://drive.google.com/uc?export=download&id=1CGB5Hw5aCVdDit-We_Al4aT-3s4dk_RX";
-const contractAddress = "0x6e7BB75a1B98362dD98DBBEdF294D3F2D56D1658"; // Remplace par la nouvelle adresse si déployé
+const contractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138"; // Nouvelle adresse
 const contractABI = [
     {"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
     {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"BoxPurchased","type":"event"},
     {"inputs":[],"name":"buyBox","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[],"name":"buyBoxWithEth","outputs":[],"stateMutability":"payable","type":"function"},
+    {"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"hasMascot","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"mascotCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
     {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[],"name":"boxPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
     {"inputs":[],"name":"MAX_CHARACTERS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"ownedMascots","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
     {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
     {"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}
 ];
@@ -86,29 +89,6 @@ function handleWalletAction() {
     }
 }
 
-async function getOwnedMascots() {
-    const contract = await initWeb3();
-    if (!contract || !connectedAccount) return [];
-
-    try {
-        const latestBlock = Number(await web3.eth.getBlockNumber());
-        const fromBlock = latestBlock - 5000;
-        const events = await contract.getPastEvents("BoxPurchased", {
-            filter: { buyer: connectedAccount },
-            fromBlock: fromBlock > 0 ? fromBlock : 0,
-            toBlock: "latest"
-        });
-        const owned = new Set();
-        events.forEach(event => {
-            owned.add(Number(event.returnValues.characterId));
-        });
-        return Array.from(owned);
-    } catch (error) {
-        console.error("Error fetching owned mascots:", error);
-        return [];
-    }
-}
-
 async function buyBox() {
     const buyBtn = document.getElementById("buyBtn");
     if (!buyBtn) return;
@@ -121,9 +101,9 @@ async function buyBox() {
     }
 
     const accounts = await web3.eth.getAccounts();
-    const ownedMascots = await getOwnedMascots();
+    const mascotCount = Number(await contract.methods.mascotCount(accounts[0]).call());
 
-    if (ownedMascots.length >= 7) {
+    if (mascotCount >= 7) {
         showPopup("You already own all mascots!");
         buyBtn.disabled = false;
         return;
@@ -136,13 +116,6 @@ async function buyBox() {
             value: web3.utils.toWei("0.001", "ether")
         });
         const characterId = Number(tx.events.BoxPurchased.returnValues.characterId);
-
-        if (ownedMascots.includes(characterId)) {
-            showPopup("You already own this mascot! Try again.");
-            buyBtn.disabled = false;
-            return; // Ne devrait pas arriver avec un nouveau contrat, mais simulation ici
-        }
-
         console.log("Transaction succeeded. Character ID:", characterId);
 
         const tickerItems = document.getElementById("tickerItems");
@@ -183,7 +156,7 @@ async function buyBox() {
         }, 8000);
     } catch (error) {
         console.error("Transaction failed:", error);
-        showPopup("Transaction failed. Please check your wallet or try again.");
+        showPopup("Transaction failed: " + (error.message || "Unknown error"));
         buyBtn.disabled = false;
     }
 }
