@@ -55,8 +55,8 @@
             border-radius: 12px;
         }
         .wallet-btn {
-            padding: 12px 24px; /* Taille correcte */
-            font-size: 1em; /* Texte lisible */
+            padding: 12px 24px;
+            font-size: 1em;
         }
         .site-footer {
             background: #333333;
@@ -191,6 +191,8 @@
             }
         }
 
+        // Appel initial pour remplir le bouton wallet
+        initWeb3().then(() => console.log("Wallet initialized"));
         window.onload = loadPurchases;
     </script>
 </body>

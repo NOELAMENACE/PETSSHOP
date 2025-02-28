@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Pets Shop - Mystery Box</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Surcharge locale pour garantir la position */
+        .wallet-btn {
+            position: absolute !important;
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body>
     <button class="wallet-btn" onclick="connectWallet(); window.location.href='account.html'">Connect Wallet</button>
@@ -37,8 +46,15 @@
         const downloadLink = "https://drive.google.com/uc?export=download&id=1CGB5Hw5aCVdDit-We_Al4aT-3s4dk_RX";
         const contractAddress = "0x6e7BB75a1B98362dD98DBBEdF294D3F2D56D1658";
         const contractABI = [
-            // (ton ABI actuel, inchangé)
-            {"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"BoxPurchased","type":"event"},{"inputs":[],"name":"buyBox","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyBoxWithEth","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"boxPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_CHARACTERS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+            {"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
+            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"BoxPurchased","type":"event"},
+            {"inputs":[],"name":"buyBox","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"buyBoxWithEth","outputs":[],"stateMutability":"payable","type":"function"},
+            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"boxPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"MAX_CHARACTERS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}
         ];
 
         function showPopup(message) {
@@ -55,6 +71,8 @@
                 try {
                     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
                     connectedAccount = accounts[0];
+                    const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
+                    document.querySelector(".wallet-btn").textContent = shortAddress;
                     return new web3.eth.Contract(contractABI, contractAddress);
                 } catch (error) {
                     console.error("User denied account access:", error);
@@ -65,6 +83,8 @@
                 web3 = new Web3(window.web3.currentProvider);
                 const accounts = await web3.eth.getAccounts();
                 connectedAccount = accounts[0];
+                const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
+                document.querySelector(".wallet-btn").textContent = shortAddress;
                 return new web3.eth.Contract(contractABI, contractAddress);
             } else {
                 showPopup("MetaMask is not installed or not detected. Please install it or check your browser settings.");
@@ -82,8 +102,6 @@
         async function connectWallet() {
             const contract = await initWeb3();
             if (contract && connectedAccount) {
-                const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
-                document.querySelector(".wallet-btn").textContent = shortAddress;
                 showPopup("Wallet connected successfully!");
             }
         }
@@ -180,5 +198,4 @@
         document.getElementById("buyBtn").addEventListener("click", buyBox);
     </script>
 </body>
-</html>
 </html>
