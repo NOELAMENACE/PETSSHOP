@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-    <button class="wallet-btn" onclick="connectWallet(); window.location.href='account.html'">Connect Wallet</button>
+    <button class="wallet-btn" onclick="handleWalletAction()">Connect Wallet</button>
     <div class="container">
         <h1>Pets Shop - Mystery Box</h1>
         <p>Buy a box for 3 USDT and unlock a random stream mascot!</p>
@@ -70,7 +70,8 @@
                     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
                     connectedAccount = accounts[0];
                     const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
-                    document.querySelector(".wallet-btn").textContent = shortAddress;
+                    const walletBtn = document.querySelector(".wallet-btn");
+                    walletBtn.textContent = shortAddress;
                     return new web3.eth.Contract(contractABI, contractAddress);
                 } catch (error) {
                     console.error("User denied account access:", error);
@@ -82,7 +83,8 @@
                 const accounts = await web3.eth.getAccounts();
                 connectedAccount = accounts[0];
                 const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
-                document.querySelector(".wallet-btn").textContent = shortAddress;
+                const walletBtn = document.querySelector(".wallet-btn");
+                walletBtn.textContent = shortAddress;
                 return new web3.eth.Contract(contractABI, contractAddress);
             } else {
                 showPopup("MetaMask is not installed or not detected. Please install it or check your browser settings.");
@@ -105,6 +107,22 @@
             const contract = await initWeb3();
             if (contract && connectedAccount) {
                 showPopup("Wallet connected successfully!");
+            }
+        }
+
+        function handleWalletAction() {
+            if (!connectedAccount) {
+                // Premier clic : connecter le portefeuille
+                connectWallet().then(() => {
+                    if (connectedAccount) {
+                        // Mettre à jour l'événement du bouton pour la redirection
+                        const walletBtn = document.querySelector(".wallet-btn");
+                        walletBtn.onclick = () => window.location.href = "account.html";
+                    }
+                });
+            } else {
+                // Déjà connecté : rediriger vers account.html
+                window.location.href = "account.html";
             }
         }
 
@@ -137,7 +155,7 @@
                 setTimeout(() => {
                     tickerItems.classList.remove("spinning");
                     tickerItems.style.transition = "transform 0.5s ease-out";
-                    const finalOffset = characterId * 210 + 2100; // Position après 10 tours
+                    const finalOffset = characterId * 210 + 2100;
                     tickerItems.style.transform = `translateX(-${finalOffset}px)`;
                     console.log("Animation finished, offset:", finalOffset);
 
