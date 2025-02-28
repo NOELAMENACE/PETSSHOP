@@ -123,7 +123,7 @@
             {"inputs": [],"name": "usdt","outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],"stateMutability": "view","type": "function"}
         ];
         const charactersImg = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.png`);
-
+    
         async function initWeb3() {
             if (typeof window.ethereum === "undefined") {
                 alert("Please install MetaMask!");
@@ -141,33 +141,33 @@
                 return null;
             }
         }
-
+    
         async function loadPurchases() {
             const web3 = await initWeb3();
             if (!web3) return;
-
+    
             const contract = new web3.eth.Contract(contractABI, contractAddress);
             try {
                 const accounts = await web3.eth.getAccounts();
-                const fromBlock = 22340000;
                 const latestBlock = Number(await web3.eth.getBlockNumber());
+                const fromBlock = latestBlock - 5000; // Réduire à 5000 blocs pour éviter les erreurs
                 console.log("Latest block:", latestBlock);
                 console.log("Searching from block:", fromBlock);
-
+    
                 const events = await contract.getPastEvents("BoxPurchased", {
-                    fromBlock: fromBlock,
+                    fromBlock: fromBlock > 0 ? fromBlock : 0, // Éviter les blocs négatifs
                     toBlock: "latest"
                 });
                 console.log("All events:", events);
-
+    
                 const userEvents = events.filter(event => 
                     event.returnValues.buyer.toLowerCase() === accounts[0].toLowerCase()
                 );
                 console.log("Filtered events for user:", userEvents);
-
+    
                 const mascotGrid = document.getElementById("mascot-grid");
                 if (userEvents.length === 0) {
-                    mascotGrid.innerHTML = "<p>No purchases found for this account since block 22340000.</p>";
+                    mascotGrid.innerHTML = "<p>No purchases found for this account in the last 5000 blocks.</p>";
                 } else {
                     userEvents.forEach(event => {
                         const characterId = Number(event.returnValues.characterId);
@@ -190,8 +190,7 @@
                 document.getElementById("mascot-grid").innerHTML = "<p>Error loading purchases. Check console.</p>";
             }
         }
-
-        // Appel initial pour remplir le bouton wallet
+    
         initWeb3().then(() => console.log("Wallet initialized"));
         window.onload = loadPurchases;
     </script>
