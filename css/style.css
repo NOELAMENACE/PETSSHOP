@@ -1,0 +1,180 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #FAFAFD; /* Blanc avec légère teinte bleue */
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2.5em;
+    color: #205ADA; /* Bleu Coinbase */
+    margin-bottom: 10px;
+}
+p {
+    font-size: 1.2em;
+    color: #4A4A4A;
+    margin-bottom: 20px;
+}
+.container {
+    max-width: 800px;
+    padding: 20px;
+    position: relative;
+}
+button {
+    padding: 12px 24px;
+    background: #205ADA; /* Bleu Coinbase uni */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(32, 90, 218, 0.3);
+}
+.wallet-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: #205ADA;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wallet-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(32, 90, 218, 0.3);
+}
+footer {
+    position: absolute;
+    bottom: 20px;
+    background: #333333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+}
+footer a {
+    color: white;
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+.ticker {
+    overflow: hidden;
+    width: 600px;
+    margin: 20px auto;
+    position: relative;
+    height: 210px;
+    border: 1px solid #DCE4F2; /* Gris-bleu subtil */
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.ticker-items {
+    display: flex;
+    position: absolute;
+}
+.ticker-items img {
+    width: 200px;
+    height: 200px;
+    margin: 5px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #DCE4F2; /* Gris-bleu pour les mascottes */
+}
+.winning-video {
+    width: 200px;
+    height: 200px;
+    margin: 5px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #DCE4F2;
+}
+.cursor {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #205ADA;
+    z-index: 10;
+}
+@keyframes spin {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-4200px); }
+}
+.spinning {
+    animation: spin 8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.popup {
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    border: 1px solid #DCE4F2;
+}
+.popup p {
+    margin: 0 0 20px;
+    color: #4A4A4A;
+    font-size: 1.1em;
+}
+.popup button {
+    padding: 10px 20px;
+    background: #205ADA;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.popup button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(32, 90, 218, 0.3);
+}
+.download-btn {
+    padding: 12px 24px;
+    background: #205ADA;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.download-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(32, 90, 218, 0.3);
+}
