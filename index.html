@@ -6,7 +6,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Surcharge locale pour garantir la position */
         .wallet-btn {
             position: absolute !important;
             top: 20px !important;
@@ -29,7 +28,6 @@
     <footer>
         <a href="https://www.etsy.com/fr/shop/NeoStreamlabs">Visit my shop</a>
     </footer>
-    <!-- Pop-up Container -->
     <div id="popup-overlay" class="popup-overlay">
         <div class="popup">
             <p id="popup-message"></p>
@@ -56,7 +54,7 @@
             {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}
         ];
-    
+
         function showPopup(message) {
             const overlay = document.getElementById("popup-overlay");
             const popupMessage = document.getElementById("popup-message");
@@ -64,7 +62,7 @@
             overlay.style.display = "flex";
             document.getElementById("popup-close").onclick = () => overlay.style.display = "none";
         }
-    
+
         async function initWeb3() {
             if (typeof window.ethereum !== "undefined") {
                 web3 = new Web3(window.ethereum);
@@ -91,9 +89,8 @@
                 return null;
             }
         }
-    
+
         const tickerItems = document.getElementById("tickerItems");
-        // Pré-remplir une seule fois au chargement
         const tickerContent = [];
         for (let i = 0; i < 30; i++) {
             charactersImg.forEach(char => tickerContent.push(char));
@@ -103,26 +100,26 @@
             img.src = char;
             tickerItems.appendChild(img);
         });
-    
+
         async function connectWallet() {
             const contract = await initWeb3();
             if (contract && connectedAccount) {
                 showPopup("Wallet connected successfully!");
             }
         }
-    
+
         async function buyBox() {
             const buyBtn = document.getElementById("buyBtn");
             buyBtn.disabled = true;
-    
+
             const contract = await initWeb3();
             if (!contract) {
                 buyBtn.disabled = false;
                 return;
             }
-    
+
             const accounts = await web3.eth.getAccounts();
-    
+
             try {
                 console.log("Sending transaction...");
                 const tx = await contract.methods.buyBoxWithEth().send({
@@ -131,37 +128,21 @@
                 });
                 const characterId = Number(tx.events.BoxPurchased.returnValues.characterId);
                 console.log("Transaction succeeded. Character ID:", characterId);
-    
+
                 const tickerItems = document.getElementById("tickerItems");
                 tickerItems.style.transform = "translateX(0)";
                 tickerItems.classList.add("spinning");
                 console.log("Animation started");
-    
+
                 setTimeout(() => {
                     tickerItems.classList.remove("spinning");
                     tickerItems.style.transition = "transform 0.5s ease-out";
                     const finalOffset = characterId * 210 + 2100; // Position après 10 tours
                     tickerItems.style.transform = `translateX(-${finalOffset}px)`;
                     console.log("Animation finished, offset:", finalOffset);
-    
+
                     setTimeout(() => {
                         console.log("Creating download button...");
-                        const items = tickerItems.children;
-                        const winningIndex = characterId + (10 * 7);
-                        if (items[winningIndex]) {
-                            const winningItem = items[winningIndex];
-                            const video = document.createElement("video");
-                            video.src = charactersVid[characterId];
-                            video.autoplay = true;
-                            video.loop = true;
-                            video.muted = true;
-                            video.className = "winning-video";
-                            winningItem.replaceWith(video);
-                            console.log("Video replaced for character:", characterId);
-                        } else {
-                            console.log("Winning index out of bounds:", winningIndex);
-                        }
-    
                         const container = document.querySelector(".container");
                         if (container) {
                             const oldDownloadBtn = container.querySelector(".download-btn");
@@ -169,7 +150,7 @@
                                 oldDownloadBtn.remove();
                                 console.log("Old download button removed");
                             }
-    
+
                             const downloadBtn = document.createElement("button");
                             downloadBtn.textContent = "Download Your Mascot";
                             downloadBtn.className = "download-btn";
@@ -179,7 +160,7 @@
                         } else {
                             console.error("Container not found");
                         }
-    
+
                         buyBtn.disabled = false;
                         showPopup("You won mascot #" + characterId + "!");
                     }, 500);
@@ -190,7 +171,7 @@
                 buyBtn.disabled = false;
             }
         }
-    
+
         document.getElementById("buyBtn").addEventListener("click", buyBox);
     </script>
 </body>
