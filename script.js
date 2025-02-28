@@ -3,23 +3,182 @@ let connectedAccount = null;
 const charactersImg = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.png`);
 const charactersVid = Array.from({ length: 7 }, (_, i) => `images/mascot-${i}.webm`);
 const downloadLink = "https://drive.google.com/uc?export=download&id=1CGB5Hw5aCVdDit-We_Al4aT-3s4dk_RX";
-const contractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138"; // Nouvelle adresse
+const contractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138";
 const contractABI = [
-    {"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
-    {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"BoxPurchased","type":"event"},
-    {"inputs":[],"name":"buyBox","outputs":[],"stateMutability":"nonpayable","type":"function"},
-    {"inputs":[],"name":"buyBoxWithEth","outputs":[],"stateMutability":"payable","type":"function"},
-    {"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"characterId","type":"uint256"}],"name":"hasMascot","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"mascotCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-    {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-    {"inputs":[],"name":"boxPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-    {"inputs":[],"name":"MAX_CHARACTERS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"ownedMascots","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-    {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-    {"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_usdtAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "characterId",
+                "type": "uint256"
+            }
+        ],
+        "name": "BoxPurchased",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "buyBox",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "buyBoxWithEth",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "boxPrice",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "characterId",
+                "type": "uint256"
+            }
+        ],
+        "name": "hasMascot",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "mascotCount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "MAX_CHARACTERS",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "ownedMascots",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "usdt",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
 ];
 
 function showPopup(message) {
+    console.log("Showing popup:", message);
     const overlay = document.getElementById("popup-overlay");
     const popupMessage = document.getElementById("popup-message");
     popupMessage.textContent = message;
@@ -28,15 +187,19 @@ function showPopup(message) {
 }
 
 async function initWeb3() {
+    console.log("Initializing web3...");
     if (typeof window.ethereum !== "undefined") {
         web3 = new Web3(window.ethereum);
         try {
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             connectedAccount = accounts[0];
+            console.log("Connected account:", connectedAccount);
             const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
             const walletBtn = document.querySelector(".wallet-btn");
             if (walletBtn) walletBtn.textContent = shortAddress;
-            return new web3.eth.Contract(contractABI, contractAddress);
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+            console.log("Contract initialized:", contractAddress);
+            return contract;
         } catch (error) {
             console.error("User denied account access:", error);
             showPopup("Please allow MetaMask to connect.");
@@ -46,10 +209,13 @@ async function initWeb3() {
         web3 = new Web3(window.web3.currentProvider);
         const accounts = await web3.eth.getAccounts();
         connectedAccount = accounts[0];
+        console.log("Connected account:", connectedAccount);
         const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
         const walletBtn = document.querySelector(".wallet-btn");
         if (walletBtn) walletBtn.textContent = shortAddress;
-        return new web3.eth.Contract(contractABI, contractAddress);
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        console.log("Contract initialized:", contractAddress);
+        return contract;
     } else {
         showPopup("MetaMask is not installed or not detected. Please install it or check your browser settings.");
         return null;
@@ -94,26 +260,32 @@ async function buyBox() {
     if (!buyBtn) return;
     buyBtn.disabled = true;
 
+    console.log("Starting buyBox...");
     const contract = await initWeb3();
     if (!contract) {
+        console.log("Contract initialization failed");
         buyBtn.disabled = false;
         return;
     }
 
     const accounts = await web3.eth.getAccounts();
-    const mascotCount = Number(await contract.methods.mascotCount(accounts[0]).call());
-
-    if (mascotCount >= 7) {
-        showPopup("You already own all mascots!");
-        buyBtn.disabled = false;
-        return;
-    }
+    console.log("Accounts retrieved:", accounts);
 
     try {
-        console.log("Sending transaction...");
+        const mascotCount = Number(await contract.methods.mascotCount(accounts[0]).call());
+        console.log("Mascot count:", mascotCount);
+
+        if (mascotCount >= 7) {
+            showPopup("You already own all mascots!");
+            buyBtn.disabled = false;
+            return;
+        }
+
+        console.log("Sending transaction with gas limit...");
         const tx = await contract.methods.buyBoxWithEth().send({
             from: accounts[0],
-            value: web3.utils.toWei("0.001", "ether")
+            value: web3.utils.toWei("0.001", "ether"),
+            gas: 300000 // Augmentation du gaz pour éviter "Out of Gas"
         });
         const characterId = Number(tx.events.BoxPurchased.returnValues.characterId);
         console.log("Transaction succeeded. Character ID:", characterId);
