@@ -32,7 +32,7 @@ async function initWeb3() {
             connectedAccount = accounts[0];
             const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
             const walletBtn = document.querySelector(".wallet-btn");
-            walletBtn.textContent = shortAddress;
+            if (walletBtn) walletBtn.textContent = shortAddress;
             return new web3.eth.Contract(contractABI, contractAddress);
         } catch (error) {
             console.error("User denied account access:", error);
@@ -45,7 +45,7 @@ async function initWeb3() {
         connectedAccount = accounts[0];
         const shortAddress = `${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
         const walletBtn = document.querySelector(".wallet-btn");
-        walletBtn.textContent = shortAddress;
+        if (walletBtn) walletBtn.textContent = shortAddress;
         return new web3.eth.Contract(contractABI, contractAddress);
     } else {
         showPopup("MetaMask is not installed or not detected. Please install it or check your browser settings.");
@@ -53,16 +53,19 @@ async function initWeb3() {
     }
 }
 
+// Fonctions pour index.html
 const tickerItems = document.getElementById("tickerItems");
-const tickerContent = [];
-for (let i = 0; i < 30; i++) {
-    charactersImg.forEach(char => tickerContent.push(char));
+if (tickerItems) {
+    const tickerContent = [];
+    for (let i = 0; i < 30; i++) {
+        charactersImg.forEach(char => tickerContent.push(char));
+    }
+    tickerContent.forEach(char => {
+        const img = document.createElement("img");
+        img.src = char;
+        tickerItems.appendChild(img);
+    });
 }
-tickerContent.forEach(char => {
-    const img = document.createElement("img");
-    img.src = char;
-    tickerItems.appendChild(img);
-});
 
 async function connectWallet() {
     const contract = await initWeb3();
@@ -76,7 +79,7 @@ function handleWalletAction() {
         connectWallet().then(() => {
             if (connectedAccount) {
                 const walletBtn = document.querySelector(".wallet-btn");
-                walletBtn.onclick = () => window.location.href = "account.html";
+                if (walletBtn) walletBtn.onclick = () => window.location.href = "account.html";
             }
         });
     } else {
@@ -86,6 +89,7 @@ function handleWalletAction() {
 
 async function buyBox() {
     const buyBtn = document.getElementById("buyBtn");
+    if (!buyBtn) return; // Sortir si pas sur index.html
     buyBtn.disabled = true;
 
     const contract = await initWeb3();
@@ -148,4 +152,63 @@ async function buyBox() {
     }
 }
 
-document.getElementById("buyBtn").addEventListener("click", buyBox);
+// Fonction pour account.html
+async function loadPurchases() {
+    const mascotGrid = document.getElementById("mascot-grid");
+    if (!mascotGrid) return; // Sortir si pas sur account.html
+
+    const web3 = await initWeb3();
+    if (!web3) return;
+
+    const contract = new web3.eth.Contract(contractABI, contractAddress);
+    try {
+        const accounts = await web3.eth.getAccounts();
+        const latestBlock = Number(await web3.eth.getBlockNumber());
+        const fromBlock = latestBlock - 5000;
+        console.log("Latest block:", latestBlock);
+        console.log("Searching from block:", fromBlock);
+
+        const events = await contract.getPastEvents("BoxPurchased", {
+            fromBlock: fromBlock > 0 ? fromBlock : 0,
+            toBlock: "latest"
+        });
+        console.log("All events:", events);
+
+        const userEvents = events.filter(event => 
+            event.returnValues.buyer.toLowerCase() === accounts[0].toLowerCase()
+        );
+        console.log("Filtered events for user:", userEvents);
+
+        if (userEvents.length === 0) {
+            mascotGrid.innerHTML = "<p>No purchases found for this account in the last 5000 blocks.</p>";
+        } else {
+            userEvents.forEach(event => {
+                const characterId = Number(event.returnValues.characterId);
+                console.log("Adding mascot:", characterId);
+                const div = document.createElement("div");
+                div.className = "mascot-item";
+                const img = document.createElement("img");
+                img.src = charactersImg[characterId];
+                const downloadBtn = document.createElement("button");
+                downloadBtn.textContent = "Download";
+                downloadBtn.className = "download-btn";
+                downloadBtn.onclick = () => window.location.href = downloadLink;
+                div.appendChild(img);
+                div.appendChild(downloadBtn);
+                mascotGrid.appendChild(div);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading purchases:", error);
+        mascotGrid.innerHTML = "<p>Error loading purchases. Check console.</p>";
+    }
+}
+
+// Initialisation selon la page
+if (document.getElementById("buyBtn")) {
+    document.getElementById("buyBtn").addEventListener("click", buyBox);
+}
+if (document.getElementById("mascot-grid")) {
+    initWeb3().then(() => console.log("Wallet initialized"));
+    window.onload = loadPurchases;
+}
